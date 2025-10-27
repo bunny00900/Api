@@ -1,6 +1,6 @@
 import openai
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
 # Set your OpenAI API key
 openai.api_key = "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"
@@ -18,29 +18,28 @@ def get_ai_response(user_input: str) -> str:
         return str(e)
 
 # Start command
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hello! I am an AI bot. Type anything, and I will respond.')
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text('Hello! I am an AI bot. Type anything, and I will respond.')
 
 # Function to handle incoming messages
-def chat(update: Update, context: CallbackContext) -> None:
+async def chat(update: Update, context: CallbackContext) -> None:
     user_input = update.message.text  # Get the message sent by the user
     ai_response = get_ai_response(user_input)  # Get the AI-generated response
-    update.message.reply_text(ai_response)  # Send the AI response back to the user
+    await update.message.reply_text(ai_response)  # Send the AI response back to the user
 
 def main():
     # Use your Bot's API Token here
     bot_token = "8205921307:AAFqvo67zwXvVRePy7pFHcg7NIcTIrJz8RI"
 
-    updater = Updater(bot_token, use_context=True)
-    dispatcher = updater.dispatcher
+    # Create an application instance with the bot token
+    application = Application.builder().token(bot_token).build()
 
     # Handlers for different commands and messages
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, chat))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
     # Start the bot
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
